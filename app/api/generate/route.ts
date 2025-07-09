@@ -1,48 +1,110 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/generate/route.ts
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { connectDB } from "@/lib/db";
 import { UserResume } from "@/models/userResume";
+import { auth } from "@clerk/nextjs/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+async function tryGenerate(prompt: string, modelName: string) {
+  const model = genAI.getGenerativeModel({ model: modelName });
+  const result = await model.generateContent([prompt]);
+  return result.response.text();
+}
+
 export async function POST(req: Request) {
   try {
-    const { fullName, jobTitle, experience, skills } = await req.json();
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!fullName || !jobTitle || !experience || !skills) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    const body = await req.json();
+    const {
+      fullName,
+      jobTitle,
+      phoneNumber,
+      emailAddress,
+      linkedInProfileURL,
+      portfolioURL,
+      city,
+      summary,
+      workExperience,
+      education,
+      technicalSkills,
+      softSkills,
+      languages,
+      projects,
+    } = body;
+
+    // Check for required fields
+    if (!fullName || !jobTitle || !emailAddress || !phoneNumber || !workExperience) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const prompt = `
-Create a professional resume with the following details:
+Create a professional and clean resume using the following user information:
 
-Name: ${fullName}
+Full Name: ${fullName}
 Job Title: ${jobTitle}
-Experience: ${experience}
-Skills: ${skills}
+Email: ${emailAddress}
+Phone: ${phoneNumber}
+City: ${city || "N/A"}
+LinkedIn: ${linkedInProfileURL || "N/A"}
+Portfolio: ${portfolioURL || "N/A"}
 
-Include sections: Summary, Skills, Experience, Education.
-Make it clean and well-structured.
+Summary: ${summary || "N/A"}
+
+Technical Skills: ${technicalSkills || "N/A"}
+Soft Skills: ${softSkills || "N/A"}
+Languages: ${languages || "N/A"}
+
+Work Experience:
+${workExperience}
+
+Education:
+${education || "N/A"}
+
+Projects:
+${projects || "N/A"}
+
+Please format the output as a professional resume with clear sections (Summary, Work Experience, Education, Skills, Projects).but don't add anything extra from yourself, just make it as provided by these information.just enhance it with proper english words vocaulary.
     `;
 
-    const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
+    let generated: string;
+    try {
+      generated = await tryGenerate(prompt, "models/gemini-2.5-flash");
+    } catch (e: any) {
+      console.warn("[GEMINI_RETRY] Failed on fast model, retrying:", e.message);
+      generated = await tryGenerate(prompt, "models/gemini-1.5-flash");
+    }
 
-    const result = await model.generateContent([prompt]);
+    await connectDB();
 
-    const text = result.response.text();
-    // after you get `text` from Gemini:
-await connectDB();
-await UserResume.create({
-  fullName,
-  jobTitle,
-  experience,
-  skills,
-  generated: text,
-});
+    // Store everything in MongoDB
+    await UserResume.create({
+      userId,
+      fullName,
+      jobTitle,
+      phoneNumber,
+      emailAddress,
+      linkedInProfileURL,
+      portfolioURL,
+      city,
+      summary,
+      workExperience,
+      education,
+      skills: {
+        technicalSkills,
+        softSkills,
+        languages,
+      },
+      projects: projects?.split(",") || [],
+      generated,
+    });
 
-    return NextResponse.json({ result: text });
+    return NextResponse.json({ result: generated });
   } catch (error: any) {
     console.error("[GEMINI_ERROR]", error.message);
     return NextResponse.json({ error: "AI generation failed" }, { status: 500 });

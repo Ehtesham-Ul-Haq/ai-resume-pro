@@ -22,5 +22,34 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.nav-link {
+    position: relative; /* Needed for absolute positioning of the pseudo-element */
+    display: inline-block; /* Allows padding and margin to work correctly */
+    padding-bottom: 4px; /* Space for the underline */
+    overflow: hidden; /* Hides the underline when it's outside */
+}
+
+.nav-link::after {
+    content: ''; /* Required for pseudo-elements */
+    position: absolute;
+    width: 0; /* Initial width of the underline */
+    height: 2px; /* Thickness of the underline */
+    bottom: 0; /* Position at the bottom of the link */
+    left: 50%; /* Start from the center */
+    background-color: #db0c0c; /* Red color for the underline */
+    transition: all 0.3s ease-out; /* Smooth transition for width and left */
+    transform: translateX(-50%); /* Center the underline initially */
+}
+
+.nav-link:hover::after {
+    width: 100%; /* Expand to full width on hover */
+    left: 50%; /* Keep centered during expansion */
+    transform: translateX(-50%); /* Ensure it stays centered */
+}
+
+.nav-link:hover {
+    color: #db0c0c; /* Change text color on hover as requested */
 }
