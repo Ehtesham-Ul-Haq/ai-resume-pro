@@ -4,7 +4,7 @@ import ResumeForm from "@/components/ResumeForm";
 import { redirect } from "next/navigation";
 
 export default async function ResumePage() {
-  const { userId } = await auth(); // ✅ await the promise
+  const { userId } = await auth();
 
   if (!userId) redirect("/sign-in");
 

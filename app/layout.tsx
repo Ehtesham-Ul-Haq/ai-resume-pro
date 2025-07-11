@@ -2,13 +2,9 @@
 import Navbar from "@/components/Navbar";
 import "@/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Inknut_Antiqua } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 
-const inknut = Inknut_Antiqua({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-  display: "swap",
-});
+
 
 export const metadata = {
   title: "AI Resume Pro",
@@ -24,7 +20,10 @@ export default function RootLayout({
     <ClerkProvider>
         <Navbar />
       <html lang="en">
-        <body className={inknut.className}>{children}</body>
+        <body>
+          {children}
+          <Toaster position="top-right" />
+        </body>
       </html>
     </ClerkProvider>
   );

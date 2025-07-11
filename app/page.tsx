@@ -13,7 +13,7 @@ export default function HomePage() {
         </p>
         <div className="mt-8 flex justify-center gap-4">
           <Link
-            href="/resume"
+            href="/generate/resume"
             className="rounded-full bg-black px-6 py-3 text-white font-semibold hover:bg-gray-800"
           >
             Get Started
