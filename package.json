@@ -11,10 +11,8 @@
   "dependencies": {
     "@clerk/nextjs": "^6.24.0",
     "@google/generative-ai": "^0.24.1",
-    "@shadcn/ui": "^0.0.4",
     "framer-motion": "^12.23.0",
     "html2canvas": "^1.4.1",
-    "html2pdf.js": "^0.10.3",
     "jspdf": "^3.0.1",
     "mongoose": "^8.16.2",
     "next": "15.3.5",

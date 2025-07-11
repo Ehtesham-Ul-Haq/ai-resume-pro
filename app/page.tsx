@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white px-6 text-center">
+    <main className="flex min-h-screen items-center justify-center bg-white dark:bg-black px-6 text-center">
       <div className="max-w-xl">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           Build a Job-Winning Resume with AI

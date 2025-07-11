@@ -4,6 +4,7 @@
 
 @import "tailwindcss";
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -33,8 +34,6 @@ body {
 
 .nav-link {
     position: relative; /* Needed for absolute positioning of the pseudo-element */
-    display: inline-block; /* Allows padding and margin to work correctly */
-    padding-bottom: 4px; /* Space for the underline */
     overflow: hidden; /* Hides the underline when it's outside */
 }
 

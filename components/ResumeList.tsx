@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -18,37 +19,46 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
   const resumeRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const downloadAsPDF = (id: string, filename: string) => {
-    const element = resumeRefs.current[id];
-    if (!element) return;
+    setDownloadingId(id);
 
-    const text = element.innerText || "";
-    const doc = new jsPDF();
+    try {
+      const element = resumeRefs.current[id];
+      if (!element) return;
 
-    const pageHeight = doc.internal.pageSize.height;
-    const margin = 10;
-    const lineHeight = 7;
-    const lines = doc.splitTextToSize(text, 180); // 180 = page width - margins
+      const text = element.innerText || "";
+      const doc = new jsPDF();
+      const pageHeight = doc.internal.pageSize.height;
+      const margin = 10;
+      const lineHeight = 7;
+      const lines = doc.splitTextToSize(text, 180);
 
-    let cursorY = margin;
+      let cursorY = margin;
 
-    lines.forEach((line: string) => {
-      if (cursorY + lineHeight > pageHeight - margin) {
-        doc.addPage();
-        cursorY = margin;
-      }
+      lines.forEach((line: string) => {
+        if (cursorY + lineHeight > pageHeight - margin) {
+          doc.addPage();
+          cursorY = margin;
+        }
+        doc.text(line, margin, cursorY);
+        cursorY += lineHeight;
+      });
 
-      doc.text(line, margin, cursorY);
-      cursorY += lineHeight;
-    });
-
-    doc.save(`${filename}_resume.pdf`);
-    toast.success("PDF downloaded!");
+      doc.save(`${filename}_resume.pdf`);
+      toast.success("PDF downloaded!");
+    } catch (err) {
+      toast.error("Download failed!");
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   const deleteResume = async (id: string) => {
     try {
+      setDeletingId(id);
       const res = await fetch(`/api/delete?id=${id}`, { method: "POST" });
       if (res.ok) {
         toast.success("Resume deleted!");
@@ -58,6 +68,8 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
       }
     } catch (err: any) {
       toast.error(err || "Error deleting resume.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -76,8 +88,7 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
                 y: -30,
                 transition: { duration: 0.4, ease: "easeInOut" },
               }}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
               className="border p-4 rounded-xl shadow-sm bg-white dark:bg-gray-800"
             >
@@ -100,16 +111,32 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
               <div className="flex flex-col md:flex-row gap-3 mt-4">
                 <button
                   onClick={() => deleteResume(resume._id)}
+                  disabled={deletingId === resume._id}
                   className="w-full md:w-1/2 bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl transition cursor-pointer"
                 >
-                  🗑 Delete
+                  {deletingId === resume._id ? (
+                    <>
+                      <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      Deleting...
+                    </>
+                  ) : (
+                    "🗑 Delete"
+                  )}
                 </button>
 
                 <button
                   onClick={() => downloadAsPDF(resume._id, resume.fullName)}
-                  className="w-full md:w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl transition cursor-pointer"
+                  disabled={downloadingId === resume._id}
+                  className="w-full md:w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl transition cursor-pointer flex justify-center items-center gap-2"
                 >
-                  ⬇️ Download PDF
+                  {downloadingId === resume._id ? (
+                    <>
+                      <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      Downloading...
+                    </>
+                  ) : (
+                    "⬇️ Download PDF"
+                  )}
                 </button>
               </div>
             </motion.li>
