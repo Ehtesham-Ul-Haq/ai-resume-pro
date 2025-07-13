@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { saveAs } from "file-saver";
 
 type Resume = {
   _id: string;
@@ -21,6 +23,7 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<{
     fullName: string;
@@ -101,36 +104,74 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
   };
 
   const handleSave = async () => {
-  try {
-    const res = await fetch("/api/update", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: editingId,
-        ...editedData,
-      }),
+    try {
+      const res = await fetch("/api/update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingId,
+          ...editedData,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      toast.success("Resume updated successfully!");
+      setEditingId(null);
+      window.location.reload();
+    } catch (err) {
+      toast.error("Failed to update resume. Please try again.");
+    }
+  };
+
+  const generateShareLink = async (id: string) => {
+    const res = await fetch("/api/share", {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    });
+    const { publicUrl } = await res.json();
+    await navigator.clipboard.writeText(window.location.origin + publicUrl);
+    toast.success("🔗 Share link copied to clipboard!");
+  };
+  const exportAsDocx = async (resume: Resume) => {
+    setExportingId(resume._id);
+
+    const content =
+      editingId === resume._id && editedData
+        ? editedData.generated
+        : resume.generated;
+
+    const doc = new Document({
+      sections: [
+        {
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${resume.fullName} — ${resume.jobTitle}`,
+                  bold: true,
+                  size: 28,
+                }),
+              ],
+            }),
+            new Paragraph({ text: "" }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: content,
+                  size: 24,
+                }),
+              ],
+            }),
+          ],
+        },
+      ],
     });
 
-    if (!res.ok) throw new Error();
-
-    toast.success("Resume updated successfully!");
-    setEditingId(null);
-     window.location.reload();
-  } catch (err) {
-    toast.error("Failed to update resume. Please try again.");
-  }
-};
-
-
-const generateShareLink = async (id: string) => {
-  const res = await fetch("/api/share", {
-    method: "POST",
-    body: JSON.stringify({ id }),
-  });
-  const { publicUrl } = await res.json();
-  await navigator.clipboard.writeText(window.location.origin + publicUrl);
-  toast.success("🔗 Share link copied to clipboard!");
-};
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `${resume.fullName}_resume.docx`);
+    setExportingId(null);
+  };
 
   return (
     <ul className="space-y-6">
@@ -149,7 +190,11 @@ const generateShareLink = async (id: string) => {
               }}
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className={`border p-4 rounded-xl shadow-sm bg-white dark:bg-gray-800 transition-opacity ${editingId && editingId !== resume._id ? "opacity-30 pointer-events-none select-none" : ""}`}
+              className={`border p-4 rounded-xl shadow-sm bg-white dark:bg-gray-800 transition-opacity ${
+                editingId && editingId !== resume._id
+                  ? "opacity-30 pointer-events-none select-none"
+                  : ""
+              }`}
             >
               <div
                 ref={(ref) => {
@@ -251,11 +296,25 @@ const generateShareLink = async (id: string) => {
                     )}
                   </button>
                   <button
-  onClick={() => generateShareLink(resume._id)}
-  className="w-full md:w-1/2 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-xl transition cursor-pointer flex justify-center items-center gap-2"
+                    onClick={() => exportAsDocx(resume)}
+                    disabled={exportingId === resume._id}
+                    className="w-full md:w-1/2 bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl transition cursor-pointer flex justify-center items-center gap-2"
                   >
-  🔗 Share
-</button>
+                    {exportingId === resume._id ? (
+                      <>
+                        <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                        Exporting...
+                      </>
+                    ) : (
+                      "📄 Export as DOCX"
+                    )}
+                  </button>
+                  <button
+                    onClick={() => generateShareLink(resume._id)}
+                    className="w-full md:w-1/2 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-xl transition cursor-pointer flex justify-center items-center gap-2"
+                  >
+                    🔗 Share
+                  </button>
                   <button
                     onClick={() => {
                       setEditingId(resume._id);
