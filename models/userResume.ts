@@ -73,6 +73,11 @@ const UserResumeSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  publicId: {
+    type: String,
+    unique: true,
+    sparse: true, // so only shared resumes require uniqueness
+  },
 });
 
 // Exporting the model

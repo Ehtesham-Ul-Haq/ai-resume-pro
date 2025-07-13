@@ -121,6 +121,17 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
   }
 };
 
+
+const generateShareLink = async (id: string) => {
+  const res = await fetch("/api/share", {
+    method: "POST",
+    body: JSON.stringify({ id }),
+  });
+  const { publicUrl } = await res.json();
+  await navigator.clipboard.writeText(window.location.origin + publicUrl);
+  toast.success("🔗 Share link copied to clipboard!");
+};
+
   return (
     <ul className="space-y-6">
       <AnimatePresence>
@@ -239,6 +250,12 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
                       "⬇️ Download PDF"
                     )}
                   </button>
+                  <button
+  onClick={() => generateShareLink(resume._id)}
+  className="w-full md:w-1/2 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-xl transition cursor-pointer flex justify-center items-center gap-2"
+                  >
+  🔗 Share
+</button>
                   <button
                     onClick={() => {
                       setEditingId(resume._id);
