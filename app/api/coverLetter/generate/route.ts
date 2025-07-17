@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       - Experience: ${experience}
       - Skills: ${skills}
 
-      The tone should be confident and enthusiastic, no more than 300 words.
+      The tone should be confident and enthusiastic, no more than 350 words.
     `;
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
