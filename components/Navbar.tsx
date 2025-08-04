@@ -11,7 +11,7 @@ const Navbar = () => {
         <div className="w-1/6 px-2">
           <Link href="/" className="flex space-x-1 items-center">
             <img src="/img/logo.png" alt="logo" width={18} height={10} />
-            <h1 className="text-2xl text-center font-medium text-gray-800 dark:text-white">
+            <h1 className="text-2xl text-center dark:text-white font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">
               AI Resume Pro
             </h1>
           </Link>
