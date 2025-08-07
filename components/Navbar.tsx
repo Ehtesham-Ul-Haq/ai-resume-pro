@@ -6,7 +6,7 @@ import ClientAuthButtons from "./ClientAuthButtons";
 
 const Navbar = () => {
   return (
-    <header className="w-full h-16 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg transition-colors duration-300">
+    <header className="w-full h-16 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg transition-colors duration-300 sticky top-0 z-50">
       <nav className="w-full md:w-11/12 h-16 md:mx-auto mx-2 flex items-center justify-between px-2">
         <div className="w-1/6 px-2">
           <Link href="/" className="flex space-x-1 items-center">
