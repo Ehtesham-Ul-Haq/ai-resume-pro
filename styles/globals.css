@@ -1,4 +1,4 @@
-/* 👉 Add this line at the very top */
+
 @import url('https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&display=swap');
 
 
@@ -8,7 +8,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --font-primary: 'Inknut Antiqua', serif; /* Optional variable */
+  --font-primary: 'Inknut Antiqua', serif; 
 }
 
 @theme inline {
@@ -44,7 +44,7 @@ body {
     height: 2px; /* Thickness of the underline */
     bottom: 0; /* Position at the bottom of the link */
     left: 50%; /* Start from the center */
-    background-color: #db0c0c; /* Red color for the underline */
+    background-color: #1656aa; /* Red color for the underline */
     transition: all 0.3s ease-out; /* Smooth transition for width and left */
     transform: translateX(-50%); /* Center the underline initially */
 }
@@ -56,5 +56,100 @@ body {
 }
 
 .nav-link:hover {
-    color: #db0c0c; /* Change text color on hover as requested */
+    color: #1656aa; 
 }
+
+
+
+/* custom @keyframes */
+
+@keyframes pulse-grid {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.15; }
+}
+
+@keyframes scanline {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 0% 100%; }
+}
+
+@keyframes glitch-text {
+    0% {
+        text-shadow: none;
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    5% {
+        text-shadow: 0 0 15px rgba(59,130,246,0.7), 5px 0 0 rgba(168,85,247,0.5);
+        transform: translate(-2px, -2px);
+        opacity: 0.8;
+    }
+    10% {
+        text-shadow: 0 0 15px rgba(168,85,247,0.7), -5px 0 0 rgba(59,130,246,0.5);
+        transform: translate(2px, 2px);
+        opacity: 0.9;
+    }
+    15% {
+        text-shadow: none;
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    20% {
+        text-shadow: 0 0 15px rgba(59,130,246,0.7), 2px 0 0 rgba(168,85,247,0.5);
+        transform: translate(-1px, 1px);
+        opacity: 0.85;
+    }
+    25% {
+        text-shadow: none;
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    /* Random glitches later on */
+    70%, 72% {
+        text-shadow: 0 0 15px rgba(59,130,246,0.7), -3px 0 0 rgba(168,85,247,0.5);
+        transform: translate(1px, -1px);
+        opacity: 0.7;
+    }
+    71%, 73% {
+        text-shadow: none;
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    100% {
+        text-shadow: none;
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+}
+
+@keyframes blink-caret {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes button-system-init {
+    0% { transform: scale(0.5); opacity: 0; border-radius: 9999px; } /* Start small and circular */
+    60% { transform: scale(1.1); opacity: 1; border-radius: 9999px; }
+    100% { transform: scale(1); opacity: 1; border-radius: 9999px; }
+}
+
+@keyframes spin-fast {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fade-in-scale {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Link the keyframes to animation classes in globals.css as well */
+.animate-pulse-grid { animation: pulse-grid 5s infinite alternate ease-in-out; }
+.animate-scanline { animation: scanline 8s linear infinite; background-size: 100% 200%; }
+.animate-glitch-text { animation: glitch-text 3s infinite steps(1) alternate; }
+.animate-blink-caret { animation: blink-caret 1s infinite steps(1); }
+.animate-button-system-init { animation: button-system-init 0.8s ease-out forwards; }
+.animate-spin-fast { animation: spin-fast 0.8s linear infinite; }
+.animate-fade-in-scale { animation: fade-in-scale 1s ease-out forwards; }
+.animate-jiggle-icon {  animation: glitch-text 3s infinite steps(1) alternate; }
+.animate-slide-in-bottom { animation: fade-in-scale 1s ease-out forwards; }

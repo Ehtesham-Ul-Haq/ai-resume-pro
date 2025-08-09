@@ -24,7 +24,7 @@ const Navbar = () => {
                 <li key={name}>
                   <Link
                     href={link}
-                    className="nav-link text-gray-800 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                    className="nav-link text-gray-800 transition-colors"
                   >
                     {name}
                   </Link>

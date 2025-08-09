@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import { UserResume } from "@/models/userResume";
-import ResumeList from "@/components/ResumeList"; // 
+import ResumeList from "@/components/ResumeList";
 
 export default async function DashboardPage({ searchParams }: any) {
   const { userId } = await auth();
