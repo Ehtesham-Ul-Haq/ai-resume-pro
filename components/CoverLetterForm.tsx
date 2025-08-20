@@ -3,8 +3,10 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import OutputViewer from "./OutputViewer";
 import toast from "react-hot-toast";
+
+import OutputViewer from "./OutputViewer";
+
 
 type FormData = {
   fullName: string;

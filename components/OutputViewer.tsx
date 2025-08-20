@@ -1,15 +1,11 @@
 import React from 'react';
 
-type OutputViewerProps = {
-  forwardoutput: string;
-};
-
-const OutputViewer = ({ forwardoutput }: OutputViewerProps) => {
+const OutputViewer = ({ forwardoutput }: { forwardoutput: string }) => {
   return (
-    <div className='w-full overflow-hidden bg-amber-200 mx-auto'>
-      <pre className='text-wrap'>{forwardoutput}</pre>
-    </div>
+    <pre className="p-4 bg-gray-900 rounded-lg overflow-auto text-sm text-green-300 border border-green-700 font-mono leading-relaxed shadow-inner">
+      {forwardoutput}
+    </pre>
   );
-}
+};
 
 export default OutputViewer;
