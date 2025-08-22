@@ -58,14 +58,14 @@ export default function PricingPage() {
 
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white py-20 px-4">
+    <div className="min-h-screen py-20 px-4">
       <h1 className="text-4xl font-bold text-center">Choose Your Plan</h1>
       <h6 className="text-sm font-thin text-center mb-10">Buy with Crypto</h6>
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 transition-all bg-white dark:bg-gray-800 flex flex-col justify-between ${
+            className={`p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 transition-all flex flex-col justify-between ${
               plan.highlight ? "ring-2 ring-blue-500" : ""
             }`}
           >

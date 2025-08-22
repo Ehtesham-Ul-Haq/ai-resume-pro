@@ -65,7 +65,7 @@ export default function ResumeForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-50 py-16 px-4 sm:px-6 lg:px-8 flex justify-center items-center relative overflow-hidden">
+    <div>
       {/* Background Animated Grid & Particles */}
       <div className="absolute inset-0 z-0 opacity-10">
         <div className="absolute inset-0 bg-[size:30px_30px] bg-[radial-gradient(#38bdf8_1px,transparent_1px)] dark:bg-[radial-gradient(#8b5cf6_1px,transparent_1px)] animate-pulse-grid"></div>

@@ -190,7 +190,7 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
               }}
               whileTap={{ scale: 0.99 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className={`border p-4 rounded-xl shadow-sm bg-white dark:bg-gray-800 transition-opacity ${
+              className={`border p-4 rounded-xl shadow-sm transition-opacity ${
                 editingId && editingId !== resume._id
                   ? "opacity-30 pointer-events-none select-none"
                   : ""
@@ -257,7 +257,7 @@ export default function ResumeList({ resumes }: { resumes: Resume[] }) {
                     <p className="text-sm text-gray-500 mb-2">
                       Created: {new Date(resume.createdAt).toLocaleString()}
                     </p>
-                    <pre className="whitespace-pre-wrap text-sm text-gray-800 bg-gray-50 rounded-lg p-3 overflow-x-auto">
+                    <pre className="whitespace-pre-wrap text-sm rounded-lg p-3 overflow-x-auto">
                       {resume.generated}
                     </pre>
                   </>
