@@ -6,12 +6,12 @@ import ClientAuthButtons from "./ClientAuthButtons";
 
 const Navbar = () => {
   return (
-    <header className="w-full h-16 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg transition-colors duration-300 sticky top-0 z-50">
+    <header className="w-full h-16 bg-white text-gray-950 shadow-md dark:shadow-lg transition-colors duration-300 sticky top-0 z-50">
       <nav className="w-full md:w-11/12 h-16 md:mx-auto mx-2 flex items-center justify-between px-2">
         <div className="w-1/6 px-2">
           <Link href="/" className="flex space-x-1 items-center">
             <img src="/img/logo.png" alt="logo" width={18} height={10} />
-            <h1 className="text-2xl text-center dark:text-white font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">
+            <h1 className="text-2xl text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">
               AI Resume Pro
             </h1>
           </Link>
@@ -24,7 +24,7 @@ const Navbar = () => {
                 <li key={name}>
                   <Link
                     href={link}
-                    className="nav-link text-gray-800 transition-colors"
+                    className="nav-link transition-colors"
                   >
                     {name}
                   </Link>

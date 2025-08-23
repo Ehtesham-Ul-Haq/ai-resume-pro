@@ -1,4 +1,5 @@
 // app/layout.tsx
+import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import "@/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -21,6 +22,7 @@ export default function RootLayout({
             <Navbar />
             {children}
             <Toaster position="top-right" />
+            <Footer />
         </body>
       </html>
     </ClerkProvider>

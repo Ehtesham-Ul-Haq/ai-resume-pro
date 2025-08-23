@@ -4,7 +4,7 @@ import { FaBolt, FaMagic, FaRegFileAlt } from "react-icons/fa";
 
 export default function HomePage() {
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 min-h-screen">
+    <div className="bg-gray-50 text-gray-900 min-h-screen">
       {/* Hero Section */}
       <main className="container mx-auto px-6 py-20 text-center">
         <div className="max-w-3xl mx-auto">
