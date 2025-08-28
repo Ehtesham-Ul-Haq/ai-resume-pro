@@ -46,13 +46,17 @@ export default function AboutUsPage() {
           <div className="relative z-10">
             <Rocket className="w-24 h-24 mx-auto text-blue-400 dark:text-purple-400 mb-6 animate-bounce-icon" />
             <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 drop-shadow-lg mb-4 animate-typewriter-effect">
-          
-AI Resume Pro: Shaping Your Career Journey            </h1>
+              AI Resume Pro: Shaping Your Career Journey{" "}
+            </h1>
             <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed animate-fade-in-slow">
-             In today’s complex job market, AI Resume Pro is your smart career guide. We don’t just create resumes — we design personalized paths that use advanced AI to turn your story into a powerful professional advantage.
+              In today’s complex job market, AI Resume Pro is your smart career
+              guide. We don’t just create resumes — we design personalized paths
+              that use advanced AI to turn your story into a powerful
+              professional advantage.
             </p>
             <p className="mt-6 text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed animate-fade-in-slow-delay">
-             We began with one mission: to give every ambitious professional the data-driven edge to land their dream role
+              We began with one mission: to give every ambitious professional
+              the data-driven edge to land their dream role
             </p>
           </div>
         </div>
@@ -67,10 +71,17 @@ AI Resume Pro: Shaping Your Career Journey            </h1>
               <span className="block w-20 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mt-4"></span>
             </h2>
             <p>
-              Founded by a team of pioneering AI experts and seasoned HR strategists, AI Resume Pro was built on a simple belief: the traditional resume is outdated. We recognized the complex balance between human recruiters and strict Applicant Tracking Systems—and set out to bridge the gap.
+              Founded by a team of pioneering AI experts and seasoned HR
+              strategists, AI Resume Pro was built on a simple belief: the
+              traditional resume is outdated. We recognized the complex balance
+              between human recruiters and strict Applicant Tracking Systems—and
+              set out to bridge the gap.
             </p>
             <p>
-              Our answer was to design an AI that doesn’t just process data, but truly understands potential—transforming raw experience into compelling, optimized narratives. We are the architects of your digital first impression.
+              Our answer was to design an AI that doesn’t just process data, but
+              truly understands potential—transforming raw experience into
+              compelling, optimized narratives. We are the architects of your
+              digital first impression.
             </p>
             <a
               href="/team"
