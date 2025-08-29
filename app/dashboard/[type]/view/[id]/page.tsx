@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react'; // Importing React and hooks
 // Removed: import { notFound } from "next/navigation"; // This import caused the error in non-Next.js environments
 import {
-  User, Mail, Phone, Home, Briefcase, FileText, Clock, Loader2, AlertTriangle, ArrowLeftCircle, Edit
+  User, Mail, Phone, Home, Briefcase, FileText, Clock, Loader2, AlertTriangle, ArrowLeftCircle,
 } from 'lucide-react'; // Lucide icons for a sleek, modern look
 
 
@@ -116,27 +116,19 @@ export default function DocumentDetailPage({
       <div className="relative z-10 max-w-6xl mx-auto space-y-10 animate-fade-in-slide-up">
 
         {/* Header Section: Back Button and Document Title */}
-        <div className="flex flex-col sm:flex-row justify-between items-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 rounded-3xl border border-blue-700 shadow-2xl">
-          <button
+        <div className="flex flex-col sm:flex-row items-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 rounded-3xl border border-blue-700 shadow-2xl">
+          
+            <button
             onClick={() => window.history.back()}
-            className="flex items-center gap-2 cursor-pointer text-blue-400 hover:text-blue-200 transition-colors duration-300 transform hover:scale-[1.05] mb-4 sm:mb-0"
-          >
+            className="flex items-center gap-2 w-1/3 cursor-pointer text-blue-400 hover:text-blue-200 transition-colors duration-300 transform hover:scale-[1.05] mb-4 sm:mb-0"
+            >
             <ArrowLeftCircle className="w-6 h-6" />
             <span className="font-semibold text-lg">Back to Dashboard</span>
           </button>
-          <h1 className="text-3xl md:text-4xl text-center font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
             {displayTitle} Preview
           </h1>
-          {/* Placeholder for future edit button, for alignment. */}
-          <div className="w-auto sm:w-48 text-right">
-             <button
-                // onClick={() => handleEdit(data.id)} // Example: Implement a handler to navigate to an edit page
-                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded-full shadow-md
-                           hover:bg-purple-700 transition-colors cursor-pointer duration-200 transform hover:scale-105"
-             >
-                <Edit className="w-4 h-4" /> Edit {displayTitle}
-             </button>
-          </div>
+          
         </div>
 
         {/* Main Document Content Area - Divided into Sidebar and Main Content */}
