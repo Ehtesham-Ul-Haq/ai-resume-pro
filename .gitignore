@@ -42,3 +42,4 @@ next-env.d.ts
 
 #constants info
 constants/index.ts
+constants/blogs.json
