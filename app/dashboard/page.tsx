@@ -3,9 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import { UserResume } from "@/models/userResume";
-import ResumeList from "@/components/ResumeList";
 import { UserCoverLetter } from "@/models/userCoverLetter";
-import CoverLettersList from "@/components/CoverLettersList";
+import DocumentList from "@/components/documentList";
 
 export default async function DashboardPage({ searchParams }: any) {
   const { userId } = await auth();
@@ -25,7 +24,7 @@ export default async function DashboardPage({ searchParams }: any) {
 
   const totalPages = Math.ceil(total / limit);
 
-    const coverLetters = await UserCoverLetter.find({ userId })
+  const coverLetters = await UserCoverLetter.find({ userId })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -39,7 +38,10 @@ export default async function DashboardPage({ searchParams }: any) {
           <p className="text-gray-500">No resumes yet.</p>
         ) : (
           <>
-            <ResumeList resumes={JSON.parse(JSON.stringify(resumes))} />
+            <DocumentList
+              type="resume"
+              documents={JSON.parse(JSON.stringify(resumes))}
+            />
 
             <div className="mt-6 flex justify-between text-sm text-gray-600">
               <a
@@ -48,10 +50,14 @@ export default async function DashboardPage({ searchParams }: any) {
               >
                 ← Previous
               </a>
-              <span>Page {page} of {totalPages}</span>
+              <span>
+                Page {page} of {totalPages}
+              </span>
               <a
                 href={`?page=${page + 1}`}
-                className={page >= totalPages ? "opacity-50 pointer-events-none" : ""}
+                className={
+                  page >= totalPages ? "opacity-50 pointer-events-none" : ""
+                }
               >
                 Next →
               </a>
@@ -60,8 +66,6 @@ export default async function DashboardPage({ searchParams }: any) {
         )}
       </div>
 
-
-      
       <div className="max-w-3xl mx-auto shadow-md rounded-2xl p-6">
         <h1 className="text-2xl font-bold mb-4">Your Cover Letters</h1>
 
@@ -69,7 +73,10 @@ export default async function DashboardPage({ searchParams }: any) {
           <p className="text-gray-500">No Cover Letter yet.</p>
         ) : (
           <>
-            <CoverLettersList coverLetters={JSON.parse(JSON.stringify(coverLetters))} />
+            <DocumentList
+              type="coverLetter"
+              documents={JSON.parse(JSON.stringify(coverLetters))}
+            />
 
             <div className="mt-6 flex justify-between text-sm text-gray-600">
               <a
@@ -78,10 +85,14 @@ export default async function DashboardPage({ searchParams }: any) {
               >
                 ← Previous
               </a>
-              <span>Page {page} of {totalPages}</span>
+              <span>
+                Page {page} of {totalPages}
+              </span>
               <a
                 href={`?page=${page + 1}`}
-                className={page >= totalPages ? "opacity-50 pointer-events-none" : ""}
+                className={
+                  page >= totalPages ? "opacity-50 pointer-events-none" : ""
+                }
               >
                 Next →
               </a>
