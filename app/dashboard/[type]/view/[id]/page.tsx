@@ -18,13 +18,12 @@ import {
   FileText,
   Clock,
   Loader2,
-  AlertTriangle,
   ArrowLeftCircle,
   Download,
   Share2,
   Trash2,
-  Edit3,
   FileType,
+  Pencil,
 } from "lucide-react";
 
 import ActionButton from "@/components/ActionButton"; // ✅ Import button
@@ -64,6 +63,16 @@ export default function DocumentDetailPage({
   const [downloadingWord, setDownloadingWord] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editedData, setEditedData] = useState<{
+    fullName: string;
+    jobTitle: string;
+    generated: string;
+  }>({
+    fullName: "",
+    jobTitle: "",
+    generated: "",
+  });
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -90,7 +99,22 @@ export default function DocumentDetailPage({
     import("pdfmake/build/vfs_fonts").then((pdfFonts: any) => {
       pdfMake.vfs = pdfFonts.pdfMake.vfs;
     });
-  }, [type, id]);
+
+     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setEditingId(null);
+        setEditedData({ fullName: "", jobTitle: "", generated: "" });
+      }
+    };
+
+    if (editingId) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [type, id, editingId]);
 
   // ✅ download as PDF
   const handleDownloadPDF = () => {
@@ -233,10 +257,30 @@ export default function DocumentDetailPage({
     }
   };
 
-  // ✅ Update (navigate)
-  const handleUpdate = () => {
-    router.push(`/dashboard/${type}/edit/${id}`);
+  // ✅ Update
+  const handleUpdate = async () => {
+ try {
+  const apiUrl =
+        type === "resume" ? `/api/resume/update` : `/api/coverLetter/update`;
+      const res = await fetch(apiUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingId,
+          ...editedData,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      toast.success("Resume updated successfully!");
+      setEditingId(null);
+      window.location.reload();
+    } catch (err) {
+      toast.error("Failed to update resume. Please try again.");
+    }
   };
+
 
   if (loading) {
     return (
@@ -283,7 +327,58 @@ export default function DocumentDetailPage({
           </h1>
         </div>
 
-        {/* Main Document Content Area - Divided into Sidebar and Main Content */}
+
+        {editingId === data._id ? (
+                  <div className="space-y-3 mb-3">
+                    <input
+                      className="w-full px-3 py-2 border rounded-md"
+                      value={editedData.fullName}
+                      onChange={(e) =>
+                        setEditedData((prev) => ({
+                          ...prev,
+                          fullName: e.target.value,
+                        }))
+                      }
+                    />
+                    <input
+                      className="w-full px-3 py-2 border rounded-md"
+                      value={editedData.jobTitle}
+                      onChange={(e) =>
+                        setEditedData((prev) => ({
+                          ...prev,
+                          jobTitle: e.target.value,
+                        }))
+                      }
+                    />
+                    <textarea
+                      rows={4}
+                      className="w-full px-3 py-2 border rounded-md"
+                      value={editedData.generated}
+                      onChange={(e) =>
+                        setEditedData((prev) => ({
+                          ...prev,
+                          generated: e.target.value,
+                        }))
+                      }
+                    />
+                    <div className="flex gap-3">
+                      <button
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md cursor-pointer"
+                        onClick={handleUpdate}
+                      >
+                        💾 Save
+                      </button>
+                      <button
+                        className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-md cursor-pointer"
+                        onClick={() => setEditingId(null)}
+                      >
+                        ✖ Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                   {/* Main Document Content Area - Divided into Sidebar and Main Content */}
         <div
           ref={contentRef}
           id="document-content"
@@ -385,8 +480,12 @@ export default function DocumentDetailPage({
             )}
           </div>
         </div>
+                  </>)}
+
+       
 
         {/* ✅ Action Buttons */}
+        {editingId !== data._id && (
         <div className="flex gap-4 justify-center flex-col sm:flex-row items-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 rounded-3xl border border-blue-700 shadow-2xl">
           <ActionButton
             onClick={handleDownloadPDF}
@@ -416,11 +515,18 @@ export default function DocumentDetailPage({
           </ActionButton>
 
           <ActionButton
-            onClick={handleUpdate}
-            icon={<Edit3 />}
+            onClick={() => {
+                      setEditingId(data._id);
+                      setEditedData({
+                        fullName: data.fullName,
+                        jobTitle: data.jobTitle,
+                        generated: data.generated,
+                      });
+                    }}
+            icon={<Pencil />}
             className="bg-yellow-600 hover:bg-yellow-700 text-black"
           >
-            Update
+            Edit
           </ActionButton>
 
           <ActionButton
@@ -431,7 +537,7 @@ export default function DocumentDetailPage({
           >
             Delete
           </ActionButton>
-        </div>
+        </div> )}
       </div>
     </div>
   );
