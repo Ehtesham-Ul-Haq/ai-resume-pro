@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 
 import ActionButton from "@/components/ActionButton"; // ✅ Import button
+import toast from "react-hot-toast";
 
 async function getDocument(type: string, id: string) {
   let apiUrl = "";
@@ -212,7 +213,7 @@ export default function DocumentDetailPage({
   };
 
   // ✅ Share link
-  const handleShare = async () => {
+  const handleShare = async (id: string) => {
     setSharing(true);
     try {
       const apiUrl =
@@ -220,17 +221,13 @@ export default function DocumentDetailPage({
 
       const res = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        await navigator.clipboard.writeText(data.shareUrl);
-        alert("Link copied to clipboard!");
-      } else {
-        alert("Failed to generate share link");
-      }
+      const { publicUrl } = await res.json();
+      await navigator.clipboard.writeText(window.location.origin + publicUrl);
+      toast.success("🔗 Share link copied to clipboard!");
+    } catch {
+      toast.error("Error! Try again later");
     } finally {
       setSharing(false);
     }
@@ -410,7 +407,7 @@ export default function DocumentDetailPage({
           </ActionButton>
 
           <ActionButton
-            onClick={handleShare}
+            onClick={() => handleShare(data._id)}
             loading={sharing}
             icon={<Share2 />}
             className="bg-green-600 hover:bg-green-700"
