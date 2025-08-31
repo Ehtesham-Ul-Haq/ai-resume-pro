@@ -1,13 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-      'use client'; // This component will be rendered on the client to handle interactive elements and state.
-// app/dashboard/[type]/view/[id]/page.tsx
-import React, { useState, useEffect } from 'react'; // Importing React and hooks
-// Removed: import { notFound } from "next/navigation"; // This import caused the error in non-Next.js environments
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import pdfMake from "pdfmake/build/pdfmake";
+import htmlToPdfmake from "html-to-pdfmake";
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { saveAs } from "file-saver";
 import {
-  User, Mail, Phone, Home, Briefcase, FileText, Clock, Loader2, AlertTriangle, ArrowLeftCircle,
-} from 'lucide-react'; // Lucide icons for a sleek, modern look
+  User,
+  Mail,
+  Phone,
+  Home,
+  Briefcase,
+  FileText,
+  Clock,
+  Loader2,
+  AlertTriangle,
+  ArrowLeftCircle,
+  Download,
+  Share2,
+  Trash2,
+  Edit3,
+  FileType,
+} from "lucide-react";
 
-
+import ActionButton from "@/components/ActionButton"; // ✅ Import button
 
 async function getDocument(type: string, id: string) {
   let apiUrl = "";
@@ -28,74 +48,212 @@ async function getDocument(type: string, id: string) {
 export default function DocumentDetailPage({
   params,
 }: {
-  params: Promise<{ type: string; id: string }>; // params is a Promise
+  params: Promise<{ type: string; id: string }>;
 }) {
   // ✅ unwrap with React.use
   const { type, id } = React.use(params);
+  const router = useRouter();
 
-  const [document, setDocument] = useState<any>(null);
+  const [docData, setDocData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  
+  // Loading states for actions
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [downloadingWord, setDownloadingWord] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [sharing, setSharing] = useState(false);
+
+  const contentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      setError(null); // Clear previous errors
+      setError(null);
       try {
         const fetchedDocument = await getDocument(type, id);
         if (!fetchedDocument) {
-          setError("Document not found. Please check the URL or try a different document ID (e.g., 'resume-123' or 'coverletter-456').");
+          setError("Document not found.");
         } else {
-          setDocument(fetchedDocument);
+          setDocData(fetchedDocument);
         }
       } catch (err) {
         console.error("Failed to fetch document:", err);
-        setError("Failed to load document data due to an internal error.");
+        setError("Failed to load document data.");
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, [type, id]); // Re-run effect if type or id changes
+    // Dynamically import fonts only in client-side
+    import("pdfmake/build/vfs_fonts").then((pdfFonts: any) => {
+      pdfMake.vfs = pdfFonts.pdfMake.vfs;
+    });
+  }, [type, id]);
 
-  // Display loading state
+  // ✅ download as PDF
+  const handleDownloadPDF = () => {
+    setDownloadingPDF(true);
+    const resumeElement = document.getElementById("document-content");
+    if (!resumeElement) return;
+
+    const html = resumeElement.innerHTML;
+
+    // convert HTML to pdfmake format
+    const pdfContent = htmlToPdfmake(html);
+
+    const docDefinition = {
+      content: pdfContent,
+      defaultStyle: {
+        fontSize: 12,
+      },
+    };
+
+    pdfMake.createPdf(docDefinition).download("document.pdf");
+    setDownloadingPDF(false);
+  };
+
+  // ✅ Download as Word
+  const handleDownloadWord = async () => {
+    setDownloadingWord(true);
+
+    console.log("data::::", data);
+    const doc = new Document({
+      sections: [
+        {
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${data.fullName} — ${data.jobTitle}`,
+                  bold: true,
+                  size: 28,
+                }),
+              ],
+            }),
+
+            new Paragraph({ text: "" }),
+
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: data.company || "",
+                  bold: true,
+                  size: 24,
+                }),
+              ],
+            }),
+
+            new Paragraph({ text: "" }),
+
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${data.emailAddress}`,
+                  size: 22,
+                }),
+              ],
+            }),
+
+            new Paragraph({ text: "" }),
+
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${data.phoneNumber}`,
+                  size: 22,
+                }),
+              ],
+            }),
+
+            new Paragraph({ text: "" }),
+
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${data.generated}`,
+                  size: 18,
+                }),
+              ],
+            }),
+          ],
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, "document.docx");
+
+    setDownloadingWord(false);
+  };
+
+  // ✅ Delete document
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const apiUrl =
+        type === "resume" ? `/api/resume/delete` : `/api/coverLetter/delete`;
+
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+
+      if (res.ok) {
+        alert("Deleted successfully!");
+        router.push("/dashboard");
+      } else {
+        alert("Failed to delete");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // ✅ Share link
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const apiUrl =
+        type === "resume" ? `/api/resume/share` : `/api/coverLetter/share`;
+
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        await navigator.clipboard.writeText(data.shareUrl);
+        alert("Link copied to clipboard!");
+      } else {
+        alert("Failed to generate share link");
+      }
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  // ✅ Update (navigate)
+  const handleUpdate = () => {
+    router.push(`/dashboard/${type}/edit/${id}`);
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-gray-400">
-        <Loader2 className="animate-spin w-16 h-16 text-blue-500 mb-4" />
-        <p className="text-xl">Loading {type === "resume" ? "Resume" : "Cover Letter"}...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin w-16 h-16 text-blue-500" />
       </div>
     );
   }
 
-  // Display error state
   if (error) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-red-400 p-8 text-center">
-        <AlertTriangle className="w-16 h-16 mb-4" />
-        <p className="text-xl mb-4">{error}</p>
-        {/* Simple back button for Canvas context */}
-        <button onClick={() => window.history.back()} className="px-6 py-3 bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition-colors">Go Back</button>
-      </div>
-    );
+    return <p>{error}</p>;
   }
 
-  // Dynamically pick resume or coverLetter
-  const data = document.resume || document.coverLetter;
-
-  // Additional check if data is still not found after fetching
-  if (!data) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-red-400 p-8 text-center">
-        <AlertTriangle className="w-16 h-16 mb-4" />
-        <p className="text-xl mb-4">Document data is missing or corrupted after loading.</p>
-        <button onClick={() => window.history.back()} className="px-6 py-3 bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition-colors">Go Back</button>
-      </div>
-    );
-  }
-
-  // Determine the display title
+  const data = docData.resume || docData.coverLetter;
   const displayTitle = type === "resume" ? "Resume" : "Cover Letter";
 
   return (
@@ -114,53 +272,94 @@ export default function DocumentDetailPage({
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-10 animate-fade-in-slide-up">
-
         {/* Header Section: Back Button and Document Title */}
         <div className="flex flex-col sm:flex-row items-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 rounded-3xl border border-blue-700 shadow-2xl">
-          
-            <button
+          <button
             onClick={() => window.history.back()}
             className="flex items-center gap-2 w-1/3 cursor-pointer text-blue-400 hover:text-blue-200 transition-colors duration-300 transform hover:scale-[1.05] mb-4 sm:mb-0"
-            >
+          >
             <ArrowLeftCircle className="w-6 h-6" />
             <span className="font-semibold text-lg">Back to Dashboard</span>
           </button>
           <h1 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
             {displayTitle} Preview
           </h1>
-          
         </div>
 
         {/* Main Document Content Area - Divided into Sidebar and Main Content */}
-        <div className="bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 md:p-10 rounded-3xl border border-gray-700 shadow-2xl grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div
+          ref={contentRef}
+          id="document-content"
+          className="bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 md:p-10 rounded-3xl border border-blue-700 shadow-2xl grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
           {/* Left Sidebar - Contact Information & Metadata */}
-          <div className="bg-gray-800 p-6 rounded-2xl space-y-6 border border-gray-700 shadow-lg animate-fade-in-stagger" style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}>
+          <div
+            className="bg-gray-800 p-6 rounded-2xl space-y-6 border border-gray-700 shadow-lg animate-fade-in-stagger"
+            style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+          >
             <div className="text-center pb-4 border-b border-gray-700">
               {/* User icon for personal details */}
               <User className="w-16 h-16 mx-auto mb-3 text-blue-400" />
-              <h2 className="text-3xl font-bold text-gray-100">{data.fullName}</h2>
+              <h2 className="text-3xl font-bold text-gray-100">
+                {data.fullName}
+              </h2>
               <p className="text-blue-300 font-medium">{data.jobTitle}</p>
             </div>
             <div className="space-y-4 text-sm text-gray-300">
               {/* Heading for contact details with an icon */}
               <h3 className="text-md font-semibold text-gray-200 flex items-center gap-2 mb-2">
-                <Briefcase className="w-5 h-5 text-green-400" /> Contact & Role Details
+                <Briefcase className="w-5 h-5 text-green-400" /> Contact & Role
+                Details
               </h3>
               {/* Conditional rendering for contact info with Lucide icons */}
-              {data.phoneNumber && <p className="flex items-center gap-3"><strong><Phone className="w-5 h-5 text-purple-400" /></strong> {data.phoneNumber}</p>}
-              {data.emailAddress && <p className="flex items-center gap-3"><strong><Mail className="w-5 h-5 text-orange-400" /></strong> {data.emailAddress}</p>}
-              {data.address && <p className="flex items-center gap-3"><strong><Home className="w-5 h-5 text-blue-400" /></strong> {data.address}</p>}
-              {data.company && <p className="flex items-center gap-3"><strong><Briefcase className="w-5 h-5 text-teal-400" /></strong> {data.company}</p>}
+              {data.phoneNumber && (
+                <p className="flex items-center gap-3">
+                  <strong>
+                    <Phone className="w-5 h-5 text-purple-400" />
+                  </strong>{" "}
+                  {data.phoneNumber}
+                </p>
+              )}
+              {data.emailAddress && (
+                <p className="flex items-center gap-3">
+                  <strong>
+                    <Mail className="w-5 h-5 text-orange-400" />
+                  </strong>{" "}
+                  {data.emailAddress}
+                </p>
+              )}
+              {data.address && (
+                <p className="flex items-center gap-3">
+                  <strong>
+                    <Home className="w-5 h-5 text-blue-400" />
+                  </strong>{" "}
+                  {data.address}
+                </p>
+              )}
+              {data.company && (
+                <p className="flex items-center gap-3">
+                  <strong>
+                    <Briefcase className="w-5 h-5 text-teal-400" />
+                  </strong>{" "}
+                  {data.company}
+                </p>
+              )}
             </div>
             {/* Creation timestamp with a clock icon */}
             <p className="text-xs text-gray-500 pt-4 border-t border-gray-700">
               <Clock className="inline-block w-3 h-3 mr-1 text-gray-600" />
-              Generated: {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}
+              Generated:{" "}
+              {data.createdAt
+                ? new Date(data.createdAt).toLocaleDateString()
+                : "N/A"}
             </p>
           </div>
 
           {/* Right Side - Experience and Generated Content */}
-          <div className="md:col-span-2 p-6 space-y-8 bg-gray-800 rounded-2xl border border-gray-700 shadow-lg animate-fade-in-stagger" style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}>
+          <div
+            className="md:col-span-2 p-6 space-y-8 bg-gray-800 rounded-2xl border border-gray-700 shadow-lg animate-fade-in-stagger"
+            style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
+          >
             {/* Experience Section */}
             {data.experience && (
               <section className="pb-6 border-b border-gray-700">
@@ -178,7 +377,8 @@ export default function DocumentDetailPage({
             {data.generated && (
               <section>
                 <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2 mb-4">
-                  <FileText className="w-6 h-6 text-green-400" /> {type === "resume" ? "Summary" : "Cover Letter Content"}
+                  <FileText className="w-6 h-6 text-green-400" />{" "}
+                  {type === "resume" ? "Summary" : "Cover Letter Content"}
                 </h3>
                 {/* 'whitespace-pre-wrap' ensures original line breaks are preserved */}
                 <div className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed whitespace-pre-wrap">
@@ -188,17 +388,54 @@ export default function DocumentDetailPage({
             )}
           </div>
         </div>
+
+        {/* ✅ Action Buttons */}
+        <div className="flex gap-4 justify-center flex-col sm:flex-row items-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 rounded-3xl border border-blue-700 shadow-2xl">
+          <ActionButton
+            onClick={handleDownloadPDF}
+            loading={downloadingPDF}
+            icon={<Download />}
+            className="bg-pink-600 hover:bg-pink-700"
+          >
+            Download PDF
+          </ActionButton>
+
+          <ActionButton
+            onClick={handleDownloadWord}
+            loading={downloadingWord}
+            icon={<FileType />}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
+            Download Word
+          </ActionButton>
+
+          <ActionButton
+            onClick={handleShare}
+            loading={sharing}
+            icon={<Share2 />}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            Share Link
+          </ActionButton>
+
+          <ActionButton
+            onClick={handleUpdate}
+            icon={<Edit3 />}
+            className="bg-yellow-600 hover:bg-yellow-700 text-black"
+          >
+            Update
+          </ActionButton>
+
+          <ActionButton
+            onClick={handleDelete}
+            loading={deleting}
+            icon={<Trash2 />}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            Delete
+          </ActionButton>
+        </div>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
