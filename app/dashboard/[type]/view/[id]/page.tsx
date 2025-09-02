@@ -5,8 +5,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
-import pdfMake from "pdfmake/build/pdfmake";
-import htmlToPdfmake from "html-to-pdfmake";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 import {
@@ -28,6 +26,7 @@ import {
 
 import ActionButton from "@/components/ActionButton"; // ✅ Import button
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
 
 async function getDocument(type: string, id: string) {
   let apiUrl = "";
@@ -74,7 +73,7 @@ export default function DocumentDetailPage({
     generated: "",
   });
 
-  const contentRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     async function fetchData() {
@@ -113,25 +112,37 @@ export default function DocumentDetailPage({
   }, [type, id, editingId]);
 
   // ✅ download as PDF
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = (id: string, filename: string) => {
     setDownloadingPDF(true);
-    const resumeElement = document.getElementById("document-content");
-    if (!resumeElement) return;
+    try {
+      const element = contentRef.current[id];
+      if (!element) return;
 
-    const html = resumeElement.innerHTML;
+      const text = element.innerText || "";
+      const doc = new jsPDF();
+      const pageHeight = doc.internal.pageSize.height;
+      const margin = 10;
+      const lineHeight = 7;
+      const lines = doc.splitTextToSize(text, 180);
 
-    // convert HTML to pdfmake format
-    const pdfContent = htmlToPdfmake(html);
+      let cursorY = margin;
 
-    const docDefinition = {
-      content: pdfContent,
-      defaultStyle: {
-        fontSize: 12,
-      },
-    };
+      lines.forEach((line: string) => {
+        if (cursorY + lineHeight > pageHeight - margin) {
+          doc.addPage();
+          cursorY = margin;
+        }
+        doc.text(line, margin, cursorY);
+        cursorY += lineHeight;
+      });
 
-    pdfMake.createPdf(docDefinition).download("document.pdf");
-    setDownloadingPDF(false);
+      doc.save(`${filename}.pdf`);
+      toast.success("PDF downloaded!");
+    } catch (err) {
+      toast.error("Download failed!");
+    } finally {
+      setDownloadingPDF(false);
+    }
   };
 
   // ✅ Download as Word
@@ -374,7 +385,9 @@ export default function DocumentDetailPage({
           <>
             {/* Main Document Content Area - Divided into Sidebar and Main Content */}
             <div
-              ref={contentRef}
+              ref={(ref) => {
+                contentRef.current[data._id] = ref;
+              }}
               id="document-content"
               className="bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 md:p-10 rounded-3xl border border-blue-700 shadow-2xl grid grid-cols-1 md:grid-cols-3 gap-8"
             >
@@ -488,7 +501,7 @@ export default function DocumentDetailPage({
         {editingId !== data._id && (
           <div className="flex gap-4 justify-center flex-col sm:flex-row items-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 rounded-3xl border border-blue-700 shadow-2xl">
             <ActionButton
-              onClick={handleDownloadPDF}
+              onClick={() => handleDownloadPDF(data._id, data.fullName)}
               loading={downloadingPDF}
               icon={<Download />}
               className="bg-pink-600 hover:bg-pink-700"
