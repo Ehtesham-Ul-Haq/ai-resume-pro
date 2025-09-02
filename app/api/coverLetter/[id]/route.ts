@@ -9,7 +9,7 @@ interface Params {
 }
 
 export async function GET(req: Request, { params }: Params) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id) {
     return NextResponse.json({ error: "Missing ID" }, { status: 400 });

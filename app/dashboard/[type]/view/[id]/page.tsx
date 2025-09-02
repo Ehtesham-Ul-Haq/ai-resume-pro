@@ -95,12 +95,8 @@ export default function DocumentDetailPage({
       }
     }
     fetchData();
-    // Dynamically import fonts only in client-side
-    import("pdfmake/build/vfs_fonts").then((pdfFonts: any) => {
-      pdfMake.vfs = pdfFonts.pdfMake.vfs;
-    });
 
-     const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setEditingId(null);
         setEditedData({ fullName: "", jobTitle: "", generated: "" });
@@ -217,19 +213,19 @@ export default function DocumentDetailPage({
     setDeleting(true);
     try {
       const apiUrl =
-        type === "resume" ? `/api/resume/delete` : `/api/coverLetter/delete`;
+        type === "resume"
+          ? `/api/resume/delete?id=${id}`
+          : `/api/coverLetter/delete?id=${id}`;
 
       const res = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
       });
 
       if (res.ok) {
-        alert("Deleted successfully!");
+        toast.success("Deleted successfully!");
         router.push("/dashboard");
       } else {
-        alert("Failed to delete");
+        toast.error("Failed to delete");
       }
     } finally {
       setDeleting(false);
@@ -259,8 +255,8 @@ export default function DocumentDetailPage({
 
   // ✅ Update
   const handleUpdate = async () => {
- try {
-  const apiUrl =
+    try {
+      const apiUrl =
         type === "resume" ? `/api/resume/update` : `/api/coverLetter/update`;
       const res = await fetch(apiUrl, {
         method: "PUT",
@@ -280,7 +276,6 @@ export default function DocumentDetailPage({
       toast.error("Failed to update resume. Please try again.");
     }
   };
-
 
   if (loading) {
     return (
@@ -327,217 +322,223 @@ export default function DocumentDetailPage({
           </h1>
         </div>
 
-
         {editingId === data._id ? (
-                  <div className="space-y-3 mb-3">
-                    <input
-                      className="w-full px-3 py-2 border rounded-md"
-                      value={editedData.fullName}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev,
-                          fullName: e.target.value,
-                        }))
-                      }
-                    />
-                    <input
-                      className="w-full px-3 py-2 border rounded-md"
-                      value={editedData.jobTitle}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev,
-                          jobTitle: e.target.value,
-                        }))
-                      }
-                    />
-                    <textarea
-                      rows={4}
-                      className="w-full px-3 py-2 border rounded-md"
-                      value={editedData.generated}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev,
-                          generated: e.target.value,
-                        }))
-                      }
-                    />
-                    <div className="flex gap-3">
-                      <button
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md cursor-pointer"
-                        onClick={handleUpdate}
-                      >
-                        💾 Save
-                      </button>
-                      <button
-                        className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-md cursor-pointer"
-                        onClick={() => setEditingId(null)}
-                      >
-                        ✖ Cancel
-                      </button>
+          <div className="space-y-3 mb-3">
+            <input
+              className="w-full px-3 py-2 border rounded-md"
+              value={editedData.fullName}
+              onChange={(e) =>
+                setEditedData((prev) => ({
+                  ...prev,
+                  fullName: e.target.value,
+                }))
+              }
+            />
+            <input
+              className="w-full px-3 py-2 border rounded-md"
+              value={editedData.jobTitle}
+              onChange={(e) =>
+                setEditedData((prev) => ({
+                  ...prev,
+                  jobTitle: e.target.value,
+                }))
+              }
+            />
+            <textarea
+              rows={4}
+              className="w-full px-3 py-2 border rounded-md"
+              value={editedData.generated}
+              onChange={(e) =>
+                setEditedData((prev) => ({
+                  ...prev,
+                  generated: e.target.value,
+                }))
+              }
+            />
+            <div className="flex gap-3">
+              <button
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md cursor-pointer"
+                onClick={handleUpdate}
+              >
+                💾 Save
+              </button>
+              <button
+                className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-md cursor-pointer"
+                onClick={() => setEditingId(null)}
+              >
+                ✖ Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Main Document Content Area - Divided into Sidebar and Main Content */}
+            <div
+              ref={contentRef}
+              id="document-content"
+              className="bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 md:p-10 rounded-3xl border border-blue-700 shadow-2xl grid grid-cols-1 md:grid-cols-3 gap-8"
+            >
+              {/* Left Sidebar - Contact Information & Metadata */}
+              <div
+                className="bg-gray-800 p-6 rounded-2xl space-y-6 border border-gray-700 shadow-lg animate-fade-in-stagger"
+                style={{
+                  animationDelay: "0.2s",
+                  animationFillMode: "backwards",
+                }}
+              >
+                <div className="text-center pb-4 border-b border-gray-700">
+                  {/* User icon for personal details */}
+                  <User className="w-16 h-16 mx-auto mb-3 text-blue-400" />
+                  <h2 className="text-3xl font-bold text-gray-100">
+                    {data.fullName}
+                  </h2>
+                  <p className="text-blue-300 font-medium">{data.jobTitle}</p>
+                </div>
+                <div className="space-y-4 text-sm text-gray-300">
+                  {/* Heading for contact details with an icon */}
+                  <h3 className="text-md font-semibold text-gray-200 flex items-center gap-2 mb-2">
+                    <Briefcase className="w-5 h-5 text-green-400" /> Contact &
+                    Role Details
+                  </h3>
+                  {/* Conditional rendering for contact info with Lucide icons */}
+                  {data.phoneNumber && (
+                    <p className="flex items-center gap-3">
+                      <strong>
+                        <Phone className="w-5 h-5 text-purple-400" />
+                      </strong>{" "}
+                      {data.phoneNumber}
+                    </p>
+                  )}
+                  {data.emailAddress && (
+                    <p className="flex items-center gap-3">
+                      <strong>
+                        <Mail className="w-5 h-5 text-orange-400" />
+                      </strong>{" "}
+                      {data.emailAddress}
+                    </p>
+                  )}
+                  {data.address && (
+                    <p className="flex items-center gap-3">
+                      <strong>
+                        <Home className="w-5 h-5 text-blue-400" />
+                      </strong>{" "}
+                      {data.address}
+                    </p>
+                  )}
+                  {data.company && (
+                    <p className="flex items-center gap-3">
+                      <strong>
+                        <Briefcase className="w-5 h-5 text-teal-400" />
+                      </strong>{" "}
+                      {data.company}
+                    </p>
+                  )}
+                </div>
+                {/* Creation timestamp with a clock icon */}
+                <p className="text-xs text-gray-500 pt-4 border-t border-gray-700">
+                  <Clock className="inline-block w-3 h-3 mr-1 text-gray-600" />
+                  Generated:{" "}
+                  {data.createdAt
+                    ? new Date(data.createdAt).toLocaleDateString()
+                    : "N/A"}
+                </p>
+              </div>
+
+              {/* Right Side - Experience and Generated Content */}
+              <div
+                className="md:col-span-2 p-6 space-y-8 bg-gray-800 rounded-2xl border border-gray-700 shadow-lg animate-fade-in-stagger"
+                style={{
+                  animationDelay: "0.4s",
+                  animationFillMode: "backwards",
+                }}
+              >
+                {/* Experience Section */}
+                {data.experience && (
+                  <section className="pb-6 border-b border-gray-700">
+                    <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2 mb-4">
+                      <Briefcase className="w-6 h-6 text-yellow-400" />{" "}
+                      Experience
+                    </h3>
+                    {/* Tailwind Typography 'prose' classes for readable content */}
+                    <div className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed">
+                      <p>{data.experience}</p>
                     </div>
-                  </div>
-                ) : (
-                  <>
-                   {/* Main Document Content Area - Divided into Sidebar and Main Content */}
-        <div
-          ref={contentRef}
-          id="document-content"
-          className="bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 md:p-10 rounded-3xl border border-blue-700 shadow-2xl grid grid-cols-1 md:grid-cols-3 gap-8"
-        >
-          {/* Left Sidebar - Contact Information & Metadata */}
-          <div
-            className="bg-gray-800 p-6 rounded-2xl space-y-6 border border-gray-700 shadow-lg animate-fade-in-stagger"
-            style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
-          >
-            <div className="text-center pb-4 border-b border-gray-700">
-              {/* User icon for personal details */}
-              <User className="w-16 h-16 mx-auto mb-3 text-blue-400" />
-              <h2 className="text-3xl font-bold text-gray-100">
-                {data.fullName}
-              </h2>
-              <p className="text-blue-300 font-medium">{data.jobTitle}</p>
+                  </section>
+                )}
+
+                {/* Generated Body (Resume Summary or Cover Letter Content) Section */}
+                {data.generated && (
+                  <section>
+                    <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2 mb-4">
+                      <FileText className="w-6 h-6 text-green-400" />{" "}
+                      {type === "resume" ? "Summary" : "Cover Letter Content"}
+                    </h3>
+                    {/* 'whitespace-pre-wrap' ensures original line breaks are preserved */}
+                    <div className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed whitespace-pre-wrap">
+                      {data.generated}
+                    </div>
+                  </section>
+                )}
+              </div>
             </div>
-            <div className="space-y-4 text-sm text-gray-300">
-              {/* Heading for contact details with an icon */}
-              <h3 className="text-md font-semibold text-gray-200 flex items-center gap-2 mb-2">
-                <Briefcase className="w-5 h-5 text-green-400" /> Contact & Role
-                Details
-              </h3>
-              {/* Conditional rendering for contact info with Lucide icons */}
-              {data.phoneNumber && (
-                <p className="flex items-center gap-3">
-                  <strong>
-                    <Phone className="w-5 h-5 text-purple-400" />
-                  </strong>{" "}
-                  {data.phoneNumber}
-                </p>
-              )}
-              {data.emailAddress && (
-                <p className="flex items-center gap-3">
-                  <strong>
-                    <Mail className="w-5 h-5 text-orange-400" />
-                  </strong>{" "}
-                  {data.emailAddress}
-                </p>
-              )}
-              {data.address && (
-                <p className="flex items-center gap-3">
-                  <strong>
-                    <Home className="w-5 h-5 text-blue-400" />
-                  </strong>{" "}
-                  {data.address}
-                </p>
-              )}
-              {data.company && (
-                <p className="flex items-center gap-3">
-                  <strong>
-                    <Briefcase className="w-5 h-5 text-teal-400" />
-                  </strong>{" "}
-                  {data.company}
-                </p>
-              )}
-            </div>
-            {/* Creation timestamp with a clock icon */}
-            <p className="text-xs text-gray-500 pt-4 border-t border-gray-700">
-              <Clock className="inline-block w-3 h-3 mr-1 text-gray-600" />
-              Generated:{" "}
-              {data.createdAt
-                ? new Date(data.createdAt).toLocaleDateString()
-                : "N/A"}
-            </p>
-          </div>
-
-          {/* Right Side - Experience and Generated Content */}
-          <div
-            className="md:col-span-2 p-6 space-y-8 bg-gray-800 rounded-2xl border border-gray-700 shadow-lg animate-fade-in-stagger"
-            style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
-          >
-            {/* Experience Section */}
-            {data.experience && (
-              <section className="pb-6 border-b border-gray-700">
-                <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2 mb-4">
-                  <Briefcase className="w-6 h-6 text-yellow-400" /> Experience
-                </h3>
-                {/* Tailwind Typography 'prose' classes for readable content */}
-                <div className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed">
-                  <p>{data.experience}</p>
-                </div>
-              </section>
-            )}
-
-            {/* Generated Body (Resume Summary or Cover Letter Content) Section */}
-            {data.generated && (
-              <section>
-                <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2 mb-4">
-                  <FileText className="w-6 h-6 text-green-400" />{" "}
-                  {type === "resume" ? "Summary" : "Cover Letter Content"}
-                </h3>
-                {/* 'whitespace-pre-wrap' ensures original line breaks are preserved */}
-                <div className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed whitespace-pre-wrap">
-                  {data.generated}
-                </div>
-              </section>
-            )}
-          </div>
-        </div>
-                  </>)}
-
-       
+          </>
+        )}
 
         {/* ✅ Action Buttons */}
         {editingId !== data._id && (
-        <div className="flex gap-4 justify-center flex-col sm:flex-row items-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 rounded-3xl border border-blue-700 shadow-2xl">
-          <ActionButton
-            onClick={handleDownloadPDF}
-            loading={downloadingPDF}
-            icon={<Download />}
-            className="bg-pink-600 hover:bg-pink-700"
-          >
-            Download PDF
-          </ActionButton>
+          <div className="flex gap-4 justify-center flex-col sm:flex-row items-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-6 rounded-3xl border border-blue-700 shadow-2xl">
+            <ActionButton
+              onClick={handleDownloadPDF}
+              loading={downloadingPDF}
+              icon={<Download />}
+              className="bg-pink-600 hover:bg-pink-700"
+            >
+              Download PDF
+            </ActionButton>
 
-          <ActionButton
-            onClick={handleDownloadWord}
-            loading={downloadingWord}
-            icon={<FileType />}
-            className="bg-indigo-600 hover:bg-indigo-700"
-          >
-            Download Word
-          </ActionButton>
+            <ActionButton
+              onClick={handleDownloadWord}
+              loading={downloadingWord}
+              icon={<FileType />}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
+              Download Word
+            </ActionButton>
 
-          <ActionButton
-            onClick={() => handleShare(data._id)}
-            loading={sharing}
-            icon={<Share2 />}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            Share Link
-          </ActionButton>
+            <ActionButton
+              onClick={() => handleShare(data._id)}
+              loading={sharing}
+              icon={<Share2 />}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Share Link
+            </ActionButton>
 
-          <ActionButton
-            onClick={() => {
-                      setEditingId(data._id);
-                      setEditedData({
-                        fullName: data.fullName,
-                        jobTitle: data.jobTitle,
-                        generated: data.generated,
-                      });
-                    }}
-            icon={<Pencil />}
-            className="bg-yellow-600 hover:bg-yellow-700 text-black"
-          >
-            Edit
-          </ActionButton>
+            <ActionButton
+              onClick={() => {
+                setEditingId(data._id);
+                setEditedData({
+                  fullName: data.fullName,
+                  jobTitle: data.jobTitle,
+                  generated: data.generated,
+                });
+              }}
+              icon={<Pencil />}
+              className="bg-yellow-600 hover:bg-yellow-700 text-black"
+            >
+              Edit
+            </ActionButton>
 
-          <ActionButton
-            onClick={handleDelete}
-            loading={deleting}
-            icon={<Trash2 />}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Delete
-          </ActionButton>
-        </div> )}
+            <ActionButton
+              onClick={handleDelete}
+              loading={deleting}
+              icon={<Trash2 />}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </ActionButton>
+          </div>
+        )}
       </div>
     </div>
   );
