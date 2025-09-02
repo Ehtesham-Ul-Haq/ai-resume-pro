@@ -45,8 +45,8 @@ export default function AboutUsPage() {
 
           <div className="relative z-10">
             <Rocket className="w-24 h-24 mx-auto text-blue-400 dark:text-purple-400 mb-6 animate-bounce-icon" />
-            <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 drop-shadow-lg mb-4 animate-typewriter-effect">
-              AI Resume Pro: Shaping Your Career Journey{" "}
+            <h1 className="text-5xl flex flex-col md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 drop-shadow-lg mb-4 animate-typewriter-effect">
+              AI Resume Pro <span className="text-5xl h-16">Shaping Your Career Journey{" "}</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed animate-fade-in-slow">
               In today’s complex job market, AI Resume Pro is your smart career
