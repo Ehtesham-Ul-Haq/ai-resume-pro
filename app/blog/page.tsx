@@ -92,7 +92,7 @@ const BlogList: React.FC<BlogListProps> = ({ onPostSelect }) => {
         {/* --- Hero Section: Blog Title --- */}
         <div className="text-center bg-gray-900 bg-opacity-70 backdrop-blur-lg p-8 md:p-12 rounded-3xl border border-blue-700 dark:border-purple-700 shadow-2xl animate-fade-in-slide-up">
           <Newspaper className="w-20 h-20 mx-auto text-blue-400 dark:text-purple-400 mb-6 animate-bounce-icon" />
-          <h1 className="text-5xl md:text-6xl font-extrabold h-20 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-4 animate-typewriter-effect">
+          <h1 className="text-5xl md:text-6xl font-extrabold md:h-20 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-4 animate-typewriter-effect">
             AI Resume Pro Blog
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed animate-fade-in-slow">

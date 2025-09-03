@@ -97,7 +97,7 @@ export default function HomePage() {
           </p>
           <Link
             href="/generate/resume"
-            className="group relative inline-flex items-center justify-center px-12 py-5 text-lg text-white font-bold rounded-full bg-gradient-to-r from-blue-500 to-purple-600 dark:bg-purple-700 bg-opacity-20 backdrop-blur-md hover:scale-105 transition-transform"
+            className="group relative inline-flex items-center justify-center px-6 py-2 text-base md:px-12 md:py-5 md:text-lg text-white font-bold rounded-full bg-gradient-to-r from-blue-500 to-purple-600 dark:bg-purple-700 bg-opacity-20 backdrop-blur-md hover:scale-105 transition-transform border"
           >
             Create Your Free Resume Now
           </Link>
