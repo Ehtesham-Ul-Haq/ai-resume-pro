@@ -8,7 +8,7 @@ const ClientAuthButtons = () => {
       const { user, isSignedIn } = useUser();
 
   return (
-    <div className="w-1/2 flex items-center justify-between p-2">
+    <div className="flex items-center space-x-4 p-2">
           {!isSignedIn ? (
             <>
               <SignInButton mode="redirect">
