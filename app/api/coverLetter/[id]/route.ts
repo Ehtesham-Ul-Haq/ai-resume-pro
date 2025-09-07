@@ -1,13 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import { UserCoverLetter } from "@/models/userCoverLetter";
 
-interface RouteParams {
-  id: string;
-}
 
-export async function GET(req: Request, { params }: { params: RouteParams }) {
-  const { id } = params;
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
+  const { id } = context.params;
 
   if (!id) {
     return NextResponse.json({ error: "Missing ID" }, { status: 400 });
