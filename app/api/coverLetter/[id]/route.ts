@@ -3,11 +3,9 @@ import { connectDB } from "@/lib/db";
 import { UserCoverLetter } from "@/models/userCoverLetter";
 
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Record<string, string> }
-) {
-  const { id } = params;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function GET(req: NextRequest, context: any) {
+  const { id } = context.params;
 
   if (!id) {
     return NextResponse.json({ error: "Missing ID" }, { status: 400 });
