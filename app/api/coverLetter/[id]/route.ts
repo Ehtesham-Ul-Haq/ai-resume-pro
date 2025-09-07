@@ -3,8 +3,11 @@ import { connectDB } from "@/lib/db";
 import { UserCoverLetter } from "@/models/userCoverLetter";
 
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
-  const { id } = context.params;
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Record<string, string> }
+) {
+  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: "Missing ID" }, { status: 400 });
