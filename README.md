@@ -6,7 +6,7 @@
 
 <h2>🚀 Demo</h2>
 
-[AI Resume Pro Live Demo](https://airesumepro.vercel.app/)
+[AI Resume Pro Live Demo](https://airesume-pro.vercel.app/)
 
 <h2>🧐 Features</h2>
 
