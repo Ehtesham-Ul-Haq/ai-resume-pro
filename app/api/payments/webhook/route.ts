@@ -8,6 +8,7 @@ export async function POST(req: Request) {
     await connectDB();
     const body = await req.json();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { payment_status, order_id, invoice_id } = body;
 
     const payment = await Payment.findOne({ invoiceId: invoice_id });
